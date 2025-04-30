@@ -9,19 +9,21 @@ const PasswordResetToken = require('../models/PasswordResetToken');
 
 exports.signup = async (req, res) => {
     try {
-        const existingUser = await User.findOne({ email: req.body.email });
-
+        const [existingUser, hashedPassword] = await Promise.all([
+            User.findOne({ email: req.body.email }),
+            bcrypt.hash(req.body.password, 10),
+        ]);
         // if user already exists
         if (existingUser) {
             return res.status(400).json({ message: 'User already exists' });
         }
 
-        const createdUser = new User(req.body);
-        const [_newUser, hashedPassword] = await Promise.all([
-            createdUser.save(),
-            bcrypt.hash(req.body.password, 10),
-        ]);
+        // hashing the password
         req.body.password = hashedPassword;
+
+        // creating new user
+        const createdUser = new User(req.body);
+        await createdUser.save();
 
         // getting secure user info
         const secureInfo = sanitizeUser(createdUser);
