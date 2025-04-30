@@ -43,14 +43,10 @@ exports.getAll = async (req, res) => {
             limit = pageSize;
         }
 
-        const totalDocs = await Product.find(filter).sort(sort).populate('brand').countDocuments().exec();
-        const results = await Product.find(filter)
-            .sort(sort)
-            .populate('brand')
-            .skip(skip)
-            .limit(limit)
-            .exec();
-        // const [totalDocs, results] = await Promise.all([totalDocsPromise, resultsPromise]);
+        const [totalDocs, results] = await Promise.all([
+            Product.find(filter).sort(sort).populate('brand').countDocuments().exec(),
+            Product.find(filter).sort(sort).populate('brand').skip(skip).limit(limit).exec(),
+        ]);
         res.set('X-Total-Count', totalDocs);
 
         res.status(200).json(results);
