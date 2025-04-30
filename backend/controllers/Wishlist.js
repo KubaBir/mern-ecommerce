@@ -24,12 +24,13 @@ exports.getByUserId = async (req, res) => {
             limit = pageSize;
         }
 
-        const resultPromise = Wishlist.find({ user: id })
-            .skip(skip)
-            .limit(limit)
-            .populate({ path: 'product', populate: ['brand'] });
-        const totalResultsPromise = Wishlist.find({ user: id }).countDocuments().exec();
-        const [result, totalResults] = await Promise.all([resultPromise, totalResultsPromise]);
+        const [result, totalResults] = await Promise.all([
+            Wishlist.find({ user: id })
+                .skip(skip)
+                .limit(limit)
+                .populate({ path: 'product', populate: ['brand'] }),
+            Wishlist.find({ user: id }).countDocuments().exec(),
+        ]);
 
         res.set('X-Total-Count', totalResults);
         res.status(200).json(result);
