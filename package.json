@@ -1,0 +1,5 @@
+{
+  "dependencies": {
+    "route-cache": "^0.7.0"
+  }
+}
